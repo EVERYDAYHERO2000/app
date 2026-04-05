@@ -85,6 +85,8 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ## 2. Обновление приложения (ручной деплой)
 
+Пошаговая инструкция (локально → GitHub → NAS): **[UPDATING.md](UPDATING.md)**.
+
 Из корня клона:
 
 ```bash
