@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  login      String?  @unique
+  passwordHash String?
+  yandexId   String?  @unique @map("yandex_id")
+  role       String   @default("CLIENT")
+  name       String?
+  phone      String?
+  carBrand   String?  @map("car_brand")
+  carPlateNumber String? @map("car_plate_number")
+  email      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  ordersAsClient Order[]         @relation("OrderClient")
+  ordersAsDriver Order[]         @relation("OrderDriver")
+  statusChanges  OrderStatusHistory[]
+
+  @@map("users")
+}
+
+model Material {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  imageKey    String?  @map("image_key")
+  unit        String   @default("m3")
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  submaterials Submaterial[]
+
+  @@map("materials")
+}
+
+model Submaterial {
+  id           String   @id @default(uuid())
+  materialId   String   @map("material_id")
+  name         String
+  description  String?
+  basePricePerUnit Decimal? @map("base_price_per_unit")
+  markupPercent Int    @default(0) @map("markup_percent")
+  pricePerUnit Decimal  @map("price_per_unit")
+  currency     String   @default("RUB")
+  isActive     Boolean  @default(true) @map("is_active")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@index([materialId, isActive, sortOrder])
+  @@map("submaterials")
+}
+
+model Order {
+  id                    String      @id @default(uuid())
+  clientRequestId       String?     @unique @map("client_request_id")
+  clientId              String      @map("client_id")
+  driverId              String?     @map("driver_id")
+  material              String      @map("material")
+  materialSubtype       String?     @map("material_subtype")
+  materialNameSnapshot  String?     @map("material_name_snapshot")
+  submaterialNameSnapshot String?   @map("submaterial_name_snapshot")
+  volume                Decimal
+  pricePerUnit          Decimal?    @map("price_per_unit")
+  totalPrice            Decimal?    @map("total_price")
+  deliveryDate          DateTime    @map("delivery_date")
+  address               String
+  lat                   Decimal?
+  lng                   Decimal?
+  coordinates           String?
+  phone                 String
+  comment               String?
+  status                String      @default("NEW")
+  version               Int         @default(1)
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+
+  client User   @relation("OrderClient", fields: [clientId], references: [id], onDelete: Restrict)
+  driver User?  @relation("OrderDriver", fields: [driverId], references: [id], onDelete: SetNull)
+  statusHistory OrderStatusHistory[]
+
+  @@index([clientId, createdAt])
+  @@index([driverId, status])
+  @@index([status, createdAt])
+  @@map("orders")
+}
+
+model OrderStatusHistory {
+  id         String      @id @default(uuid())
+  orderId    String      @map("order_id")
+  fromStatus String?     @map("from_status")
+  toStatus   String      @map("to_status")
+  changedBy  String      @map("changed_by")
+  comment    String?
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user    User  @relation(fields: [changedBy], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@map("order_status_history")
+}

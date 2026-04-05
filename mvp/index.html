@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказы доставки</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Мои заказы</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="orders-list" id="ordersList">
+                <!-- Заказы будут добавлены через JS -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">
+                    <span class="material-icons">inbox</span>
+                </div>
+                <p>У вас пока нет заказов</p>
+                <p class="empty-subtitle">Создайте первый заказ доставки</p>
+            </div>
+        </main>
+
+        <button class="fab" id="createOrderBtn" onclick="location.href='create-order.html'">
+            <span class="material-icons">add</span>
+        </button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

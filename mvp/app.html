@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Заказы доставки</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=YOUR_API_KEY&lang=ru_RU" type="text/javascript"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Screen 1: Orders List -->
+        <div class="screen" id="screen-orders" data-screen="orders">
+            <header class="app-header">
+                <h1>Мои заказы</h1>
+            </header>
+
+            <main class="main-content">
+                <div class="orders-list" id="ordersList">
+                    <!-- Заказы будут добавлены через JS -->
+                </div>
+
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <div class="empty-icon">
+                        <span class="material-icons">inbox</span>
+                    </div>
+                    <p>У вас пока нет заказов</p>
+                    <p class="empty-subtitle">Создайте первый заказ доставки</p>
+                </div>
+            </main>
+
+            <button class="fab" id="createOrderBtn">
+                <span class="material-icons">add</span>
+            </button>
+        </div>
+
+        <!-- Screen 2: Create Order -->
+        <div class="screen" id="screen-create" data-screen="create" style="display: none;">
+            <header class="app-header">
+                <button class="back-btn" id="backFromCreateBtn">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1>Новый заказ</h1>
+            </header>
+
+            <main class="main-content">
+                <form id="orderForm" class="order-form">
+                    <div class="form-group">
+                        <label>Материал</label>
+                        <div class="material-cards">
+                            <label class="material-card">
+                                <input type="radio" name="material" value="sand" checked required>
+                                <div class="material-card-content">
+                                    <div class="material-icon">
+                                        <img src="assets/sand.png" alt="Песок">
+                                    </div>
+                                    <span class="material-label">Песок</span>
+                                </div>
+                            </label>
+                            <label class="material-card">
+                                <input type="radio" name="material" value="gravel" required>
+                                <div class="material-card-content">
+                                    <div class="material-icon">
+                                        <img src="assets/stone.png" alt="Щебень">
+                                    </div>
+                                    <span class="material-label">Щебень</span>
+                                </div>
+                            </label>
+                            <label class="material-card">
+                                <input type="radio" name="material" value="asphalt" required>
+                                <div class="material-card-content">
+                                    <div class="material-icon">
+                                        <img src="assets/asphalt.png" alt="Асфальт">
+                                    </div>
+                                    <span class="material-label">Асфальт</span>
+                                </div>
+                            </label>
+                        </div>
+                        <div id="subtypeGroup" style="display: none; margin-top: 12px;">
+                            <div class="form-group">
+                                <label for="materialSubtype">Подтип материала</label>
+                                <select id="materialSubtype" name="materialSubtype" required>
+                                    <option value="">Выберите подтип</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="volume">Объем: <span id="volumeValue">20 м³</span></label>
+                        <input type="range" id="volume" name="volume" min="5" max="100" step="5" value="20" required>
+                        <div class="volume-labels">
+                            <span>5 м³</span>
+                            <span>100 м³</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Дата доставки</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addressInput">Место доставки</label>
+                        <input type="text" id="addressInput" name="addressInput" placeholder="Введите адрес" required>
+                        <button type="button" class="btn btn-secondary" id="openMapBtn" style="margin-top: 8px; width: 100%;">
+                            <span class="material-icons" style="vertical-align: middle; font-size: 18px; margin-right: 4px;">map</span>
+                            Указать на карте
+                        </button>
+                        <input type="hidden" id="address" name="address">
+                        <input type="hidden" id="coordinates" name="coordinates">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Контактный телефон</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+7 (999) 123-45-67" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Комментарий</label>
+                        <textarea id="comment" name="comment" rows="4" placeholder="Дополнительная информация о заказе"></textarea>
+                    </div>
+                </form>
+            </main>
+
+            <div class="fixed-order-footer">
+                <div class="order-price">
+                    <span class="price-label">Стоимость заказа:</span>
+                    <span class="price-value" id="orderPrice">0 ₽</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-fixed" id="submitOrderBtn">Создать заказ</button>
+            </div>
+
+            <!-- Bottom Sheet с картой -->
+            <div class="bottom-sheet" id="mapBottomSheet">
+                <div class="bottom-sheet-overlay" id="mapBottomSheetOverlay"></div>
+                <div class="bottom-sheet-content">
+                    <div class="bottom-sheet-header">
+                        <h2>Выберите место на карте</h2>
+                        <button class="bottom-sheet-close" id="closeMapBtn">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    <div class="bottom-sheet-body">
+                        <div id="map" class="map-container"></div>
+                        <div id="addressDisplay" class="address-display" style="display: none; margin-top: 12px; padding: 12px; background-color: #f5f5f5; border-radius: 4px; font-size: 14px;">
+                            <span class="material-icons" style="vertical-align: middle; font-size: 16px; margin-right: 4px;">place</span>
+                            <span id="addressText"></span>
+                        </div>
+                    </div>
+                    <div class="bottom-sheet-footer">
+                        <button type="button" class="btn btn-primary" id="applyMapBtn" style="width: 100%;">Применить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Order Detail -->
+        <div class="screen" id="screen-detail" data-screen="detail" style="display: none;">
+            <header class="app-header">
+                <button class="back-btn" id="backFromDetailBtn">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <h1>Заказ #<span id="orderNumber"></span></h1>
+            </header>
+
+            <main class="main-content">
+                <div class="order-detail">
+                    <div class="status-card">
+                        <div class="status-badge" id="statusBadge">
+                            <span class="material-icons" id="statusIcon">schedule</span>
+                            <span id="statusText">Ожидает</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h2>Информация о заказе</h2>
+                        <div class="info-row">
+                            <span class="info-label">Материал:</span>
+                            <span id="materialInfo" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Объем:</span>
+                            <span id="volumeInfo" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Дата доставки:</span>
+                            <span id="dateInfo" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Адрес:</span>
+                            <span id="addressInfo" class="info-value"></span>
+                        </div>
+                        <div class="info-row" id="commentRow" style="display: none;">
+                            <span class="info-label">Комментарий:</span>
+                            <span id="commentInfo" class="info-value"></span>
+                        </div>
+                    </div>
+
+                    <div class="tracking-card">
+                        <h2>Отслеживание груза</h2>
+                        <div id="trackingMap" class="map-container"></div>
+                        <div class="tracking-info" id="trackingInfo">
+                            <p>Груз в пути</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="create-order.js"></script>
+    <script src="order-detail.js"></script>
+    <script src="screen-manager.js"></script>
+</body>
+</html>

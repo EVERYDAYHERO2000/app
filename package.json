@@ -1,0 +1,10 @@
+{
+  "name": "bulk-cargo-workspace",
+  "private": true,
+  "scripts": {
+    "setup": "bash scripts/local-dev-setup.sh",
+    "setup:docker": "bash scripts/local-up.sh",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev"
+  }
+}

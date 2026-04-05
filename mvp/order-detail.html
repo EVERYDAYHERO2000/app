@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали заказа</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=YOUR_API_KEY&lang=ru_RU" type="text/javascript"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <button class="back-btn" onclick="location.href='index.html'">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Заказ #<span id="orderNumber"></span></h1>
+        </header>
+
+        <main class="main-content">
+            <div class="order-detail">
+                <div class="status-card">
+                    <div class="status-badge" id="statusBadge">
+                        <span class="material-icons" id="statusIcon">schedule</span>
+                        <span id="statusText">Ожидает</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h2>Информация о заказе</h2>
+                    <div class="info-row">
+                        <span class="info-label">Материал:</span>
+                        <span id="materialInfo" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Объем:</span>
+                        <span id="volumeInfo" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Дата доставки:</span>
+                        <span id="dateInfo" class="info-value"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Адрес:</span>
+                        <span id="addressInfo" class="info-value"></span>
+                    </div>
+                    <div class="info-row" id="commentRow" style="display: none;">
+                        <span class="info-label">Комментарий:</span>
+                        <span id="commentInfo" class="info-value"></span>
+                    </div>
+                </div>
+
+                <div class="tracking-card">
+                    <h2>Отслеживание груза</h2>
+                    <div id="trackingMap" class="map-container"></div>
+                    <div class="tracking-info" id="trackingInfo">
+                        <p>Груз в пути</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="order-detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+**/dist/
+*.tsbuildinfo
+
+# Secrets — never commit (.env.example stays tracked)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Prisma local DB files
+**/*.db
+**/*.db-journal
+
+# AI / assistant instructions (local only)
+.cursor/
+.cursorrules
+AGENTS.md
+CLAUDE.md
+AI_*.md
+.github/copilot-instructions.md
+.github/instructions.md
+.windsurfrules
+.aider*
