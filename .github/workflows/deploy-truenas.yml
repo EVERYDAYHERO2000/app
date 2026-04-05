@@ -1,0 +1,34 @@
+# Деплой на TrueNAS по SSH после push в main.
+# Нужны секреты репозитория (Settings → Secrets → Actions):
+#   TRUENAS_HOST      — IP или hostname (доступен раннеру GitHub: интернет, VPN, Tailscale…)
+#   TRUENAS_USER      — SSH-пользователь на NAS
+#   TRUENAS_SSH_KEY   — приватный ключ (весь PEM), парный к публичному в ~/.ssh/authorized_keys на NAS
+#   TRUENAS_APP_PATH  — абсолютный путь к клону репозитория на NAS, например /mnt/pool/apps/app
+#
+# На сервере один раз: git clone, backend/.env, nginx, systemd — см. deploy/truenas/README.md
+
+name: Deploy to TrueNAS
+
+on:
+  # Раскомментируйте после настройки секретов и доступности NAS из интернета/VPN:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.TRUENAS_HOST }}
+          username: ${{ secrets.TRUENAS_USER }}
+          key: ${{ secrets.TRUENAS_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.TRUENAS_APP_PATH }}"
+            export SYSTEMD_UNIT=bulk-cargo-backend
+            bash deploy/truenas/deploy.sh

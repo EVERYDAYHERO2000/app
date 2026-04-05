@@ -1,0 +1,25 @@
+# Скопируйте в /etc/systemd/system/bulk-cargo-backend.service (или ~/.config/systemd/user/)
+# Замените пути и пользователя. Затем:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now bulk-cargo-backend
+#
+# Важно: укажите полный путь к node (проверьте: which node), либо задайте PATH в Environment.
+
+[Unit]
+Description=Bulk Cargo API (Node)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=DEPLOY_USER
+WorkingDirectory=/ABS/PATH/TO/app/backend
+EnvironmentFile=/ABS/PATH/TO/app/backend/.env
+# Если node не в стандартном PATH:
+# Environment=PATH=/home/DEPLOY_USER/.nvm/versions/node/v20.10.0/bin:/usr/bin
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
